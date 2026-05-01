@@ -6,35 +6,4 @@
     <title>local</title>
 </head>
 <body></body>
-
-<script>
-    const name = new URLSearchParams(window.location.search).get("name") ?? "local";
-    const content = localStorage.getItem(name);
-
-    if (!!content) {
-        document.write(content);
-    } else {
-        document.onclick = () => {
-            const file = Object.assign(document.createElement("input"), {
-                type: "file",
-                style: "display: none",
-                oncancel: (event) => document.body.removeChild(event.target),
-                onclick: (event) => event.stopPropagation(),
-                onchange: (event) => {
-                    const fr = Object.assign(new FileReader(), { onload: (event) => {
-                        localStorage.setItem(name, event.target.result);
-                        document.onclick = null;
-                        document.write(event.target.result);
-                        window.onload?.();
-                    }});
-
-                    fr.readAsText(event.target.files[0], "UTF-8");
-                    document.body.removeChild(event.target);
-                }
-            });
-            
-            document.body.appendChild(file);        
-            file.click();
-        }
-    }
-</script>
+<script>document.write(localStorage.getItem(new URLSearchParams(window.location.search).get("name")) ?? "local");</script>
