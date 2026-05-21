@@ -6,7 +6,6 @@
     <title>file</title>
 </head>
 <body></body>
-
 <script>
     const exportFile = (file, fileName = "export") => new Promise((resolve) => {
         const a = Object.assign(document.createElement("a"), {
@@ -46,8 +45,7 @@
         onclick: () => {
             const option = prompt(handle?.name ?? "name");
 
-            if (!option) {
-                return;
+            if (!option?.trim()) {
             } else if (!handle) {
                 root.getFileHandle(option, { create: true }).then(h => importFile().then(f => h.createWritable().then(w => w.write(f).then(() => w.close()))));
             } else if (option === "t") {
@@ -64,15 +62,11 @@
 
     navigator.storage.getDirectory().then(root => {
         const file = new URLSearchParams(window.location.search).get("file");
+        const values = root.values();
 
         if (!!file?.trim()) {
-            root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => {
-                document.write(t);
-                window.onload?.();
-            })))
+            root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t), window.onload?.())));
         } else {
-            const values = root.values();
-
             processHandle(root, null);
             processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
             processNext();
