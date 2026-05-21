@@ -6,6 +6,7 @@
     <title>file</title>
 </head>
 <body></body>
+
 <script>
     const exportFile = (file, fileName = "export") => new Promise((resolve) => {
         const a = Object.assign(document.createElement("a"), {
@@ -47,15 +48,31 @@
 
             if (!option?.trim()) {
             } else if (!handle) {
-                root.getFileHandle(option, { create: true }).then(h => importFile().then(f => h.createWritable().then(w => w.write(f).then(() => w.close()))));
+                root.getFileHandle(option, { create: true }).then(h => importFile().then(f => h.createWritable().then(w => w.write(f).then(() => {
+                    w.close();
+                    location.reload();
+                }))));
             } else if (option === "t") {
-                handle.getFile().then(f => f.text().then(t => (edited = prompt(handle.name, t), edited === null ? null : handle.createWritable().then(w => w.write(edited).then(() => w.close())))))
+                handle.getFile().then(f => f.text().then(t => {
+                    const name =  prompt(handle.name, t);
+                    
+                    if (name !== null) {
+                        handle.createWritable().then(w => w.write(edited).then(() => {
+                            w.close();
+                            location.reload();
+                        }));
+                    }
+                }));
             } else if (option === "e") {
                 handle.getFile().then(f => exportFile(f, handle.name));
             } else if (option === "i") {
-                importFile().then(f => handle.createWritable().then(w => w.write(f).then(() => w.close())));
+                importFile().then(f => handle.createWritable().then(w => w.write(f).then(() => {
+                    w.close();
+                    location.reload();
+                })));
             } else if (option === "r") {
                 handle.remove();
+                location.reload();
             }
         }
     }));
@@ -65,10 +82,18 @@
         const values = root.values();
 
         if (!!file?.trim()) {
-            root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t), window.onload?.())));
-        } else {
+            root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => {
+                document.write(t);
+                window.onload?.();
+            })));
+        } else {            
             processHandle(root, null);
-            processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
+            processNext = () => values.next().then(result => {
+                if (!result.done) {
+                    processHandle(root, result.value);
+                    processNext()
+                }
+            });
             processNext();
         }
     });
