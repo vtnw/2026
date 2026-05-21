@@ -5,81 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>file</title>
 </head>
-<body>
-</body>
+<body></body>
 
 <script>
-    window.onload = () => {
-        const exportFile = (file, fileName = "export") => new Promise((resolve) => {
-            const a = Object.assign(document.createElement("a"), {
-                download: fileName,
-                href: URL.createObjectURL(file),
-                style: "display: none",
-                onclick: (event) => {
-                    document.body.removeChild(event.target);
-                    event.stopPropagation();
-                    resolve();
-                }
-            });
-            
-            document.body.appendChild(a);
-            a.click();
+    const exportFile = (file, fileName = "export") => new Promise((resolve) => {
+        const a = Object.assign(document.createElement("a"), {
+            download: fileName,
+            href: URL.createObjectURL(file),
+            style: "display: none",
+            onclick: (event) => {
+                document.body.removeChild(event.target);
+                event.stopPropagation();
+                resolve();
+            }
         });
-
-        const importFile = () => new Promise((resolve) => {
-            const file = Object.assign(document.createElement("input"), {
-                type: "file",
-                style: "display: none",
-                oncancel: (event) => document.body.removeChild(event.target),
-                onclick: (event) => event.stopPropagation(),
-                onchange: (event) => {
-                    resolve(event.target.files[0]);
-                    document.body.removeChild(event.target);
-                }
-            });
-            
-            document.body.appendChild(file);        
-            file.click();
-        });
-
-        const processHandle = (root, handle) => {
-            document.body.appendChild(Object.assign(document.createElement("div"), {
-                style: `padding: 0.5em`,
-                innerText: handle?.name ?? "add",
-                onclick: () => {
-                    const option = prompt(handle?.name ?? "name");
-
-                    if (!option) {
-                        return;
-                    } else if (!handle) {
-                        root.getFileHandle(option, { create: true }).then(h => importFile().then(f => h.createWritable().then(w => w.write(f).then(() => w.close()))));
-                    } else if (option === "t") {
-                        handle.getFile().then(f => f.text().then(t => (edited = prompt(handle.name, t), edited === null ? null : handle.createWritable().then(w => w.write(edited).then(() => w.close())))))
-                    } else if (option === "e") {
-                        handle.getFile().then(f => exportFile(f, handle.name));
-                    } else if (option === "i") {
-                        importFile().then(f => handle.createWritable().then(w => w.write(f).then(() => w.close())));
-                    } else if (option === "r") {
-                        handle.remove();
-                    }
-                }
-            }));
-        };
-
-        const file = new URLSearchParams(window.location.search).get("file");
         
-        if (!!file?.trim()) {
-            navigator.storage.getDirectory().then(root => root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t)))));
+        document.body.appendChild(a);
+        a.click();
+    });
 
-            return;
-        }
-
-        navigator.storage.getDirectory().then(root => {
-            const values = root.values();
-
-            processHandle(root, null);
-            processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
-            processNext();
+    const importFile = () => new Promise((resolve) => {
+        const file = Object.assign(document.createElement("input"), {
+            type: "file",
+            style: "display: none",
+            oncancel: (event) => document.body.removeChild(event.target),
+            onclick: (event) => event.stopPropagation(),
+            onchange: (event) => {
+                resolve(event.target.files[0]);
+                document.body.removeChild(event.target);
+            }
         });
+        
+        document.body.appendChild(file);        
+        file.click();
+    });
+
+    const processHandle = (root, handle) => document.body.appendChild(Object.assign(document.createElement("div"), {
+        style: `padding: 0.5em`,
+        innerText: handle?.name ?? "add",
+        onclick: () => {
+            const option = prompt(handle?.name ?? "name");
+
+            if (!option) {
+                return;
+            } else if (!handle) {
+                root.getFileHandle(option, { create: true }).then(h => importFile().then(f => h.createWritable().then(w => w.write(f).then(() => w.close()))));
+            } else if (option === "t") {
+                handle.getFile().then(f => f.text().then(t => (edited = prompt(handle.name, t), edited === null ? null : handle.createWritable().then(w => w.write(edited).then(() => w.close())))))
+            } else if (option === "e") {
+                handle.getFile().then(f => exportFile(f, handle.name));
+            } else if (option === "i") {
+                importFile().then(f => handle.createWritable().then(w => w.write(f).then(() => w.close())));
+            } else if (option === "r") {
+                handle.remove();
+            }
+        }
+    }));
+
+    const file = new URLSearchParams(window.location.search).get("file");
+    
+    if (!!file?.trim()) {
+        navigator.storage.getDirectory().then(root => root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t)))));
+
+        return;
     }
+
+    navigator.storage.getDirectory().then(root => {
+        const values = root.values();
+
+        processHandle(root, null);
+        processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
+        processNext();
+    });
 </script>
