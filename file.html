@@ -62,19 +62,17 @@
         }
     }));
 
-    const file = new URLSearchParams(window.location.search).get("file");
-    
-    if (!!file?.trim()) {
-        navigator.storage.getDirectory().then(root => root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t)))));
-
-        return;
-    }
-
     navigator.storage.getDirectory().then(root => {
-        const values = root.values();
+        const file = new URLSearchParams(window.location.search).get("file");
 
-        processHandle(root, null);
-        processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
-        processNext();
+        if (!!file?.trim()) {
+            root.getFileHandle(file, { create: true }).then(h => h.getFile().then(f => f.text().then(t => document.write(t))))
+        } else {
+            const values = root.values();
+
+            processHandle(root, null);
+            processNext = () => values.next().then(result => !result.done ? (processHandle(root, result.value), processNext()) : null);
+            processNext();
+        }
     });
 </script>
