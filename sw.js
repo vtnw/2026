@@ -1,4 +1,8 @@
-self.addEventListener('fetch', event => event.respondWith(serve(event.request.url.slice(event.request.url.lastIndexOf("/") - 1))));
+self.addEventListener("fetch", event => {
+    const response = serve(event.request.url.slice(event.request.url.lastIndexOf("/") - 1));
+    
+    event.respondWith(response);
+});
 
 serve = async (name) => {
     const root = await navigator.storage.getDirectory();
