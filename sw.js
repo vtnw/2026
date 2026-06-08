@@ -1,7 +1,7 @@
 self.addEventListener("fetch", event => {
     const response = serve(event.request.url.slice(event.request.url.lastIndexOf("/") + 1));
     
-    event.respondWith(response ?? (await fetch(event.request)));
+    event.respondWith(response ?? fetch(event.request));
 });
 
 serve = async (name) => {
