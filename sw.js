@@ -1,4 +1,4 @@
-self.addEventListener("fetch", event => event.respondWith(async (event) => {
+self.addEventListener("fetch", event => event.respondWith(event => {
     try {
         const root = await navigator.storage.getDirectory();
         const fileHandle = await root.getFileHandle(event.request.url.slice(event.request.url.lastIndexOf("/") + 1));
