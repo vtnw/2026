@@ -1,5 +1,5 @@
 self.addEventListener("fetch", event => {
-    const response = serve(event.request.url.slice(event.request.url.lastIndexOf("/") + 1));
+    const response = await serve(event.request.url.slice(event.request.url.lastIndexOf("/") + 1));
     
     event.respondWith(response ?? fetch(event.request));
 });
