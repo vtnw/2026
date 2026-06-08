@@ -6,7 +6,7 @@ self.addEventListener("fetch", event => {
 
 serve = async (name) => {
     const root = await navigator.storage.getDirectory();
-    const fileHandle = await root.getFileHandle(name, , { create: true });
+    const fileHandle = await root.getFileHandle(name, { create: true });
     const file = await fileHandle.getFile();
     const text = await file.text();
 
