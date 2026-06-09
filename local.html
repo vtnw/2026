@@ -7,7 +7,7 @@
 </head>
 <body></body>
 <script>
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register("sw.js");
     
     window.onclick = () => {
         const file = Object.assign(document.createElement("input"), { type: "file", style: "display: none" });
@@ -15,7 +15,7 @@
         file.oncancel = (event) => document.body.removeChild(event.target);
         file.onclick = (event) => event.stopPropagation();
         file.onchange = (event) => {
-            navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close()))));
+            navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close().then(() => location.reload())))));
             document.body.removeChild(event.target);
         };
         
