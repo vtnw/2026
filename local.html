@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>local</title>
 </head>
-<body>
-    <input type="file" style="display: none" onclick="(event) => event.stopPropagation()" />
-</body>
+<body></body>
 <script>
     navigator.serviceWorker.register("sw.js");
-    window.onclick = () => document.getElementsByTagName("input")[0].click();
-    document.getElementsByTagName("input")[0].onchange = (event) => navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close().then(() => location.reload())))))
+    
+    window.onclick = () => {
+        const file = Object.assign(document.createElement("input"), { type: "file", style: "display: none" });
+
+        file.oncancel = (event) => document.body.removeChild(event.target);
+        file.onclick = (event) => event.stopPropagation();
+        file.onchange = (event) => {
+            navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close().then(() => location.reload())))));
+            document.body.removeChild(event.target);
+        };
+        
+        document.body.appendChild(file);
+        file.click();
+    }
 </script>
