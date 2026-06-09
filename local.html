@@ -5,5 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>local</title>
 </head>
-<body onclick="() => document.getElementsByTagName('input')[0].click()"><input type="file" style="display: none" onclick="(event) => event.stopPropagation()" onchange="(event) => navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close().then(() => location.reload())))))" /></body>
-<script>navigator.serviceWorker.register("sw.js");</script>
+<body>
+    <input type="file" style="display: none" onclick="(event) => event.stopPropagation()" onchange="(event) => navigator.storage.getDirectory().then(root => root.getFileHandle(event.target.files[0].name, { create: true }).then(h => h.createWritable().then(w => w.write(event.target.files[0]).then(() => w.close().then(() => location.reload())))))" />
+</body>
+<script>
+    navigator.serviceWorker.register("sw.js");
+
+    window.onclick = () => document.getElementsByTagName("input")[0].click();
+</script>
